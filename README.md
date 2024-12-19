@@ -29,7 +29,7 @@ Aplikasi Pengelolaan Kostum untuk Cosplayer dirancang untuk membantu cosplayer d
 ### Langkah Instalasi:
 1. Clone repositori ini:
    ```bash
-   git clone https://github.com/username/repo-name.git
+   git clone https://github.com/dikameo/UAP_Cosplayer.git
    ```
 2. Buka proyek di IDE Anda.
 
