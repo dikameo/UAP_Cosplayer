@@ -37,7 +37,7 @@ Aplikasi Pengelolaan Kostum untuk Cosplayer dirancang untuk membantu cosplayer d
 ---
 
 ## Cara Penggunaan
-1. **Tambah Kostum**: Masukkan data kostum seperti nama karakter, kategori, ukuran, dan deskripsi.
+1. **Tambah Kostum**: Masukkan data kostum seperti nama karakter, kategori, ukuran, dan gambar kostum.
 2. **Pelacakan Status**: Cek status kostum secara real-time.
 
 ---
