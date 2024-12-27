@@ -2,15 +2,21 @@ package main.uapkostum;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
 public class MainPage extends JFrame {
     public MainPage() {
+        // Pengaturan Look and Feel
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // Pengaturan Frame
         setTitle("Cosrent Manajemen");
-        setSize(400, 500);
+        setSize(600, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setUndecorated(true);
@@ -23,103 +29,177 @@ public class MainPage extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Background gradient
-                GradientPaint gradient = new GradientPaint(0, 0, new Color(58, 123, 213),
-                        getWidth(), getHeight(), new Color(58, 96, 115));
+                // Background gradient dengan variasi warna
+                GradientPaint gradient = new GradientPaint(
+                        0, 0, new Color(41, 128, 185),  // Biru cerah
+                        getWidth(), getHeight(), new Color(142, 68, 173)  // Ungu
+                );
                 g2d.setPaint(gradient);
                 g2d.fillRect(0, 0, getWidth(), getHeight());
 
                 g2d.dispose();
             }
         };
-        mainPanel.setLayout(null);
+        mainPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
 
         // Header
         JLabel headerLabel = new JLabel("Cosrent Manajemen", SwingConstants.CENTER);
-        headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 32));
         headerLabel.setForeground(Color.WHITE);
-        headerLabel.setBounds(0, 50, 400, 50);
-        mainPanel.add(headerLabel);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        mainPanel.add(headerLabel, gbc);
 
-        // Tombol Tambahkan Data
-        JButton addDataButton = createRoundedButton("Tambahkan Data");
-        addDataButton.setForeground(new Color(0, 0, 139)); // Warna biru tua
-        addDataButton.setBounds(50, 150, 300, 45);
-        addDataButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Aksi untuk menambahkan data
-                JOptionPane.showMessageDialog(MainPage.this, "Fitur Tambahkan Data belum tersedia.");
-            }
-        });
-        mainPanel.add(addDataButton);
+        // Tombol Menu Utama
+        String[][] menuItems = {
+                {"Manajemen Kostum", "Kelola semua kostum"},
+                {"Profile", "Lihat dan edit profil"},
+                {"Keluar", "Tutup aplikasi"}
+        };
 
-        // Tombol Tampilkan Data
-        JButton displayDataButton = createRoundedButton("Tampilkan Data");
-        displayDataButton.setForeground(new Color(0, 0, 139)); // Warna biru tua
-        displayDataButton.setBounds(50, 220, 300, 45);
-        displayDataButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Aksi untuk menampilkan data
-                JOptionPane.showMessageDialog(MainPage.this, "Fitur Tampilkan Data belum tersedia.");
-            }
-        });
-        mainPanel.add(displayDataButton);
+        for (int i = 0; i < menuItems.length; i++) {
+            gbc.gridx = 0;
+            gbc.gridy = i + 1;
+            gbc.gridwidth = 2;
+            gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Tombol Profile
-        JButton profileButton = createRoundedButton("Profile");
-        profileButton.setForeground(new Color(0, 0, 139)); // Warna biru tua
-        profileButton.setBounds(50, 290, 300, 45);
-        profileButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Aksi untuk melihat profile
-                JOptionPane.showMessageDialog(MainPage.this, "Fitur Profile belum tersedia.");
-            }
-        });
-        mainPanel.add(profileButton);
-
-        // Tombol Keluar
-        JButton exitButton = createRoundedButton("Keluar");
-        exitButton.setForeground(new Color(0, 0, 139)); // Warna biru tua
-        exitButton.setBounds(50, 360, 300, 45);
-        exitButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
-        mainPanel.add(exitButton);
+            mainPanel.add(createMenuButton(menuItems[i][0], menuItems[i][1], i), gbc);
+        }
 
         // Set Shape Rounded
-        setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 20, 20));
+        setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
 
         add(mainPanel);
+
+        // Tambahkan efek dragging
+        addDragListener(mainPanel);
     }
 
-    // Membuat Tombol Rounded
-    private JButton createRoundedButton(String text) {
-        JButton button = new JButton(text) {
+    // Membuat Tombol Menu dengan desain modern
+    private JButton createMenuButton(String title, String description, int index) {
+        JButton button = new JButton() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Background biru gelap
-                g2d.setColor(new Color(25, 25, 112)); // Dark blue
-                g2d.fillRoundRect(8, 8, getWidth(), getHeight(), 15, 15);
+                // Background gradient untuk setiap tombol
+                Color[] colors = {
+                        new Color(52, 152, 219),   // Biru
+                        new Color(46, 204, 113),   // Hijau
+                        new Color(231, 76, 60)     // Merah
+                };
+
+                GradientPaint gradient = new GradientPaint(
+                        0, 0, colors[index],
+                        getWidth(), getHeight(), colors[index].darker()
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
 
                 super.paintComponent(g);
                 g2d.dispose();
             }
         };
-        button.setForeground(Color.WHITE);
-        button.setBorder(BorderFactory.createEmptyBorder());
+
+        // Layout tombol
+        button.setLayout(new BorderLayout());
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel descLabel = new JLabel(description);
+        descLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        descLabel.setForeground(Color.WHITE);
+        descLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        button.add(titleLabel, BorderLayout.CENTER);
+        button.add(descLabel, BorderLayout.SOUTH);
+
+        button.setPreferredSize(new Dimension(500, 120));
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
         button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Aksi untuk setiap tombol
+        button.addActionListener(e -> {
+            switch(title) {
+                case "Manajemen Kostum":
+                    openCostumeInventorySystem();
+                    break;
+                case "Profile":
+                    openProfilePage();
+                    break;
+                case "Keluar":
+                    // Tambahkan konfirmasi keluar
+                    int result = JOptionPane.showConfirmDialog(
+                            MainPage.this,
+                            "Apakah Anda yakin ingin keluar?",
+                            "Konfirmasi Keluar",
+                            JOptionPane.YES_NO_OPTION
+                    );
+                    if (result == JOptionPane.YES_OPTION) {
+                        System.exit(0);
+                    }
+                    break;
+            }
+        });
+
         return button;
+    }
+
+    // Method untuk membuka Costume Inventory System
+    private void openCostumeInventorySystem() {
+        dispose(); // Tutup halaman utama
+        SwingUtilities.invokeLater(() -> {
+            CostumeInventorySystem costumeSystem = new CostumeInventorySystem();
+            costumeSystem.setVisible(true);
+        });
+    }
+
+    // Method untuk membuka Profile Page
+    private void openProfilePage() {
+        dispose(); // Tutup halaman utama
+        SwingUtilities.invokeLater(() -> {
+            Profile profilePage = new Profile();
+            profilePage.setVisible(true);
+        });
+    }
+
+    // Tambahkan method untuk drag listener
+    private void addDragListener(JPanel panel) {
+        final Point[] mousePoint = new Point[1];
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Tambahkan aksi klik kanan untuk keluar
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    int result = JOptionPane.showConfirmDialog(
+                            MainPage.this,
+                            "Apakah Anda yakin ingin keluar?",
+                            "Konfirmasi Keluar",
+                            JOptionPane.YES_NO_OPTION
+                    );
+                    if (result == JOptionPane.YES_OPTION) {
+                        System.exit(0);
+                    }
+                }
+                mousePoint[0] = e.getPoint();
+            }
+        });
+
+        panel.addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseDragged(MouseEvent e) {
+                int x = e.getXOnScreen() - mousePoint[0].x;
+                int y = e.getYOnScreen() - mousePoint[0].y;
+                setLocation(x, y);
+            }
+        });
     }
 
     public static void main(String[] args) {

@@ -1,9 +1,9 @@
 package main.uapkostum;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-
 
 public class LoginUI extends JFrame {
     public JTextField usernameField;
@@ -11,6 +11,14 @@ public class LoginUI extends JFrame {
     public JButton loginButton;
     private JButton registerButton;
     public AbstractButton closeButton;
+
+    // Daftar username dan password yang valid
+    private static final String[][] VALID_CREDENTIALS = {
+            {"admin", "admin"},
+            {"user", "user123"},
+            {"staff", "staff123"}
+    };
+    private Point mousePoint;
 
     public LoginUI() {
         // Pengaturan Look and Feel
@@ -75,7 +83,6 @@ public class LoginUI extends JFrame {
         });
         mainPanel.add(loginButton);
 
-
         // Close Button
         JButton closeButton = new JButton("X");
         closeButton.setBounds(360, 10, 30, 30);
@@ -93,7 +100,76 @@ public class LoginUI extends JFrame {
         add(mainPanel);
     }
 
-    // Membuat TextField Rounded
+    // Metode-metode sebelumnya (createRoundedTextField, createRoundedPasswordField, dll.)
+    // ... (tetap sama seperti di kode sebelumnya)
+
+    // Aksi untuk tombol login
+    private void loginAction() {
+        String username = usernameField.getText();
+        String password = new String(passwordField.getPassword());
+
+        // Validasi login
+        if (validateLogin(username, password)) {
+            JOptionPane.showMessageDialog(this, "Login berhasil!");
+
+            // Tutup halaman login
+            dispose();
+
+            // Buka CostumeInventorySystem (MainPage)
+            SwingUtilities.invokeLater(() -> {
+                MainPage mainPage = new MainPage();
+                mainPage.setVisible(true);
+            });
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Username atau password salah!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    // Metode validasi login
+    private boolean validateLogin(String username, String password) {
+        for (String[] credential : VALID_CREDENTIALS) {
+            if (credential[0].equals(username) && credential[1].equals(password)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Metode main untuk menjalankan aplikasi
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            LoginUI loginUI = new LoginUI();
+            loginUI.setVisible(true);
+        });
+    }
+
+    // Metode untuk menambahkan efek dragging pada frame
+    private void addDragListener(JPanel panel) {
+        panel.addMouseListener(new MouseAdapter() {
+            Point mousePoint;
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mousePoint = e.getPoint();
+            }
+        });
+
+        panel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int x = e.getXOnScreen() - mousePoint.x;
+                int y = e.getYOnScreen() - mousePoint.y;
+                setLocation(x, y);
+            }
+        });
+    }
+
+    // Metode-metode untuk membuat komponen rounded
     private JTextField createRoundedTextField(String placeholder) {
         JTextField textField = new JTextField(placeholder) {
             @Override
@@ -131,7 +207,6 @@ public class LoginUI extends JFrame {
         return textField;
     }
 
-    // Membuat Password Field Rounded
     private JPasswordField createRoundedPasswordField(String placeholder) {
         JPasswordField passwordField = new JPasswordField(placeholder) {
             @Override
@@ -172,7 +247,6 @@ public class LoginUI extends JFrame {
         return passwordField;
     }
 
-    // Membuat Tombol Rounded dengan Background Biru Gelap
     private JButton createRoundedButton(String text) {
         JButton button = new JButton(text) {
             @Override
@@ -193,74 +267,20 @@ public class LoginUI extends JFrame {
         button.setFocusPainted(false);
         button.setFont(new Font("Arial", Font.BOLD, 16));
         button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Tambahkan efek hover
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(new Color(0, 0, 139)); // Warna biru lebih gelap saat hover
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(null);
+            }
+        });
+
         return button;
     }
-
-    // Membuat Hyperlink Button
-    private JButton createHyperlinkButton(String text) {
-        JButton button = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                setForeground(Color.LIGHT_GRAY);
-            }
-        };
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        button.setFont(new Font("Arial", Font.PLAIN, 12));
-        button.addActionListener(e -> {
-            // Aksi untuk tombol register
-            JOptionPane.showMessageDialog(this, "Halaman pendaftaran belum tersedia.");
-        });
-        return button;
-    }
-
-    // Aksi untuk tombol login
-    private void loginAction() {
-        String username = usernameField.getText();
-        String password = new String(passwordField.getPassword());
-
-        // Logika autentikasi (contoh sederhana)
-        if (username.equals("admin") && password.equals("password")) {
-            JOptionPane.showMessageDialog(this, "Login berhasil!");
-            // Arahkan ke halaman berikutnya
-        } else {
-            JOptionPane.showMessageDialog(this, "Username atau password salah!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Menambahkan efek dragging pada frame
-    private void addDragListener(JPanel panel) {
-        panel.addMouseListener(new MouseAdapter() {
-            Point mousePoint;
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                mousePoint = e.getPoint();
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                int x = e.getXOnScreen() - mousePoint.x;
-                int y = e.getYOnScreen() - mousePoint.y;
-                setLocation(x, y);
-            }
-        });
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            LoginUI loginUI = new LoginUI();
-            loginUI.setVisible(true);
-        });
-    }
-
-
-
-
-
-
-
 }
