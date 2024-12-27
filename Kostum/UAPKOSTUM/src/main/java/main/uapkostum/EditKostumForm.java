@@ -9,13 +9,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class EditKostumForm extends JFrame {
-    private JTextField idKostumField;
-    private JTextField namaKostumField;
-    private JComboBox<String> kategoriComboBox;
-    private JComboBox<String> temaComboBox;
-    private JTextField ukuranField;
-    private JComboBox<String> statusComboBox;
-    private JLabel gambarLabel;
+    public JTextField idKostumField;
+    public JTextField namaKostumField;
+    public JComboBox<String> kategoriComboBox;
+    public JComboBox<String> temaComboBox;
+    public JTextField ukuranField;
+    public JComboBox<String> statusComboBox;
+    public JLabel gambarLabel;
 
     public EditKostumForm(String idKostum, String namaKostum, String kategori, String tema, String ukuran, String status, String pathGambar) {
         // Pengaturan Frame

@@ -4,11 +4,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
 
+
 public class LoginUI extends JFrame {
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton;
+    public JTextField usernameField;
+    public JPasswordField passwordField;
+    public JButton loginButton;
     private JButton registerButton;
+    public AbstractButton closeButton;
 
     public LoginUI() {
         // Pengaturan Look and Feel
@@ -254,4 +256,11 @@ public class LoginUI extends JFrame {
             loginUI.setVisible(true);
         });
     }
+
+
+
+
+
+
+
 }
