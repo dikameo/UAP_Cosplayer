@@ -10,7 +10,9 @@ import java.io.File;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.border.*;
 import javax.swing.table.TableColumnModel;
-
+import org.apache.poi.xwpf.usermodel.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
 public class CostumeInventorySystem extends JFrame {
     // Skema Warna Modern
     private static final Color DARK_BLUE = new Color(44, 62, 80);
@@ -29,7 +31,7 @@ public class CostumeInventorySystem extends JFrame {
     private JComboBox<String> categoryBox, themeBox, statusBox;
     private JTable costumeTable;
     private DefaultTableModel tableModel;
-    private JButton addButton, editButton, deleteButton, browseButton;
+    private JButton addButton, editButton, deleteButton, browseButton, saveButton;
     private JLabel imageLabel, titleLabel;
 
     public CostumeInventorySystem() {
@@ -55,8 +57,7 @@ public class CostumeInventorySystem extends JFrame {
         setCustomLookAndFeel();
     }
 
-    // Buat Panel Header
-    // Buat Panel Header
+
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(DARK_BLUE);
@@ -240,6 +241,7 @@ public class CostumeInventorySystem extends JFrame {
         panel.add(imagePath, BorderLayout.CENTER);
         panel.add(browseButton, BorderLayout.EAST);
 
+
         return panel;
     }
 
@@ -264,6 +266,10 @@ public class CostumeInventorySystem extends JFrame {
         // Panel tombol aksi
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(Color.WHITE);
+
+        // Tambahkan tombol Save
+        saveButton = createActionButton("Save to Word", LIGHT_BLUE);
+        buttonPanel.add(saveButton);
 
         // Buat tombol dengan desain modern
         addButton = createActionButton("Add", LIGHT_BLUE);
@@ -494,8 +500,6 @@ public class CostumeInventorySystem extends JFrame {
 
     // Method untuk menambahkan event listeners
     private void addEventListeners() {
-        // Listener untuk tombol Browse
-        // Listener untuk tombol Browse
         browseButton.addActionListener(e -> browseCostumeImage());
 
         // Listener untuk tombol Add
@@ -506,6 +510,13 @@ public class CostumeInventorySystem extends JFrame {
                 editCostume();
             }
         });
+
+        saveButton.addActionListener(e -> saveToDocx());
+        if (saveButton == null) {
+            System.out.println("Save to Word button is null");
+        }
+
+
 
         // Listener untuk seleksi baris tabel
         costumeTable.getSelectionModel().addListSelectionListener(e -> {
@@ -523,6 +534,10 @@ public class CostumeInventorySystem extends JFrame {
 
                     deleteButton = createActionButton("Delete", ACCENT_COLOR);
                     buttonPanel.add(deleteButton);
+
+                    buttonPanel.add(saveButton); // Tambahkan Save to Word
+                    buttonPanel.revalidate();
+                    buttonPanel.repaint();
 
                     // Tambahkan listener untuk tombol Delete
                     deleteButton.addActionListener(deleteEvent -> deleteCostume());
@@ -617,6 +632,49 @@ public class CostumeInventorySystem extends JFrame {
             showErrorMessage("Please select a costume to delete");
         }
     }
+
+    private void saveToDocx() {
+        try (XWPFDocument document = new XWPFDocument()) {
+            XWPFTable table = document.createTable();
+
+            // Tambahkan header ke tabel
+            XWPFTableRow headerRow = table.getRow(0); // Baris pertama sudah ada secara default
+            for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                if (i == 0) {
+                    headerRow.getCell(0).setText(tableModel.getColumnName(i));
+                } else {
+                    headerRow.addNewTableCell().setText(tableModel.getColumnName(i));
+                }
+            }
+
+            // Tambahkan data ke tabel
+            for (int row = 0; row < tableModel.getRowCount(); row++) {
+                XWPFTableRow dataRow = table.createRow();
+                for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                    Object value = tableModel.getValueAt(row, col);
+                    dataRow.getCell(col).setText(value != null ? value.toString() : "");
+                }
+            }
+
+            // Atur style tabel
+            table.setWidth("100%");
+
+            // Tentukan lokasi penyimpanan berdasarkan direktori kerja aplikasi
+            String currentDir = System.getProperty("user.dir");
+            String filePath = currentDir + File.separator + "CostumeData.docx";
+
+            // Simpan dokumen
+            try (FileOutputStream out = new FileOutputStream(filePath)) {
+                document.write(out);
+            }
+
+            showSuccessMessage("Data saved successfully to: " + filePath);
+        } catch (IOException ex) {
+            showErrorMessage("Failed to save data: " + ex.getMessage());
+        }
+    }
+
+
 
     // Method untuk membersihkan fields
     private void clearFields() {
