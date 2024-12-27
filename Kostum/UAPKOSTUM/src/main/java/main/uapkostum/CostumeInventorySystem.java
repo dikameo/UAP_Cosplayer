@@ -1,3 +1,5 @@
+
+
 package main.uapkostum;
 
 import javax.swing.*;
@@ -240,6 +242,8 @@ public class CostumeInventorySystem extends JFrame {
         statusBox.setSelectedIndex(0);
         imageLabel.setIcon(null);
     }
+
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
