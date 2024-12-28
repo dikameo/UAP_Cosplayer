@@ -13,6 +13,11 @@ import javax.swing.table.TableColumnModel;
 import org.apache.poi.xwpf.usermodel.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
+// Tambahkan import di bagian atas file
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+
 public class CostumeInventorySystem extends JFrame {
     // Skema Warna Modern
     private static final Color DARK_BLUE = new Color(44, 62, 80);
@@ -33,6 +38,8 @@ public class CostumeInventorySystem extends JFrame {
     private DefaultTableModel tableModel;
     private JButton addButton, editButton, deleteButton, browseButton, saveButton;
     private JLabel imageLabel, titleLabel;
+
+    private static final DateTimeFormatter WAKTU_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public CostumeInventorySystem() {
 
@@ -268,8 +275,8 @@ public class CostumeInventorySystem extends JFrame {
         buttonPanel.setBackground(Color.WHITE);
 
         // Tambahkan tombol Save
-        saveButton = createActionButton("Save to Word", LIGHT_BLUE);
-        buttonPanel.add(saveButton);
+//        saveButton = createActionButton("Save to Word", LIGHT_BLUE);
+//        buttonPanel.add(saveButton);
 
         // Buat tombol dengan desain modern
         addButton = createActionButton("Add", LIGHT_BLUE);
@@ -307,7 +314,7 @@ public class CostumeInventorySystem extends JFrame {
         return button;
     }
 
-// Buat Panel Tabel
+    // Buat Panel Tabel
     private JPanel createTablePanel() {
         JPanel tablePanel = new JPanel(new BorderLayout(10, 10));
         tablePanel.setBackground(Color.WHITE);
@@ -316,8 +323,8 @@ public class CostumeInventorySystem extends JFrame {
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
 
-        // Kolom tabel
-        String[] columns = {"ID", "Name", "Category", "Theme", "Size", "Status", "Image Path"};
+        // Di createTablePanel()
+        String[] columns = {"ID", "Name", "Category", "Theme", "Size", "Status", "Image Path", "Waktu"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -329,6 +336,7 @@ public class CostumeInventorySystem extends JFrame {
 
         // Atur lebar kolom
         TableColumnModel columnModel = costumeTable.getColumnModel();
+
         columnModel.getColumn(0).setPreferredWidth(50);   // ID
         columnModel.getColumn(1).setPreferredWidth(150);  // Name
         columnModel.getColumn(2).setPreferredWidth(100);  // Category
@@ -336,6 +344,7 @@ public class CostumeInventorySystem extends JFrame {
         columnModel.getColumn(4).setPreferredWidth(50);   // Size
         columnModel.getColumn(5).setPreferredWidth(100);  // Status
         columnModel.getColumn(6).setPreferredWidth(200);  // Image Path
+        columnModel.getColumn(7).setPreferredWidth(50);   // Waktu
 
         // Buat renderer untuk rata tengah dan padding
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
@@ -366,7 +375,7 @@ public class CostumeInventorySystem extends JFrame {
         }
 
         // Styling tabel - Perbesar tinggi baris
-        costumeTable.setRowHeight(50);  // Tinggi baris
+        costumeTable.setRowHeight(30);  // Tinggi baris
         costumeTable.setFont(REGULAR_FONT);
         costumeTable.setSelectionBackground(LIGHT_BLUE);
         costumeTable.setSelectionForeground(Color.WHITE);
@@ -380,7 +389,7 @@ public class CostumeInventorySystem extends JFrame {
 
         // Buat renderer khusus untuk header
         ((DefaultTableCellRenderer)header.getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
-        header.setPreferredSize(new Dimension(header.getWidth(), 50)); // Perbesar tinggi header
+        header.setPreferredSize(new Dimension(header.getWidth(), 30)); // Perbesar tinggi header
 
         // Scrollpane untuk tabel
         JScrollPane scrollPane = new JScrollPane(costumeTable);
@@ -511,10 +520,10 @@ public class CostumeInventorySystem extends JFrame {
             }
         });
 
-        saveButton.addActionListener(e -> saveToDocx());
-        if (saveButton == null) {
-            System.out.println("Save to Word button is null");
-        }
+//        saveButton.addActionListener(e -> saveToDocx());
+//        if (saveButton == null) {
+//            System.out.println("Save to Word button is null");
+//        }
 
 
 
@@ -535,7 +544,7 @@ public class CostumeInventorySystem extends JFrame {
                     deleteButton = createActionButton("Delete", ACCENT_COLOR);
                     buttonPanel.add(deleteButton);
 
-                    buttonPanel.add(saveButton); // Tambahkan Save to Word
+//                    buttonPanel.add(saveButton); // Tambahkan Save to Word
                     buttonPanel.revalidate();
                     buttonPanel.repaint();
 
@@ -561,10 +570,13 @@ public class CostumeInventorySystem extends JFrame {
         });
     }
 
-    // Method untuk menambahkan kostum
     private void addCostume() {
         if (validateInput()) {
             try {
+                // Dapatkan waktu saat ini
+                String waktuSekarang = LocalDateTime.now().format(WAKTU_FORMATTER);
+
+                // Buat array data baris dengan urutan yang sesuai dengan kolom tabel
                 String[] rowData = {
                         idField.getText(),
                         nameField.getText(),
@@ -572,33 +584,64 @@ public class CostumeInventorySystem extends JFrame {
                         themeBox.getSelectedItem().toString(),
                         sizeField.getText(),
                         statusBox.getSelectedItem().toString(),
-                        imagePath.getText()
+                        imagePath.getText(),
+                        waktuSekarang
                 };
 
+                // Tambahkan baris baru ke tabel
                 tableModel.addRow(rowData);
+
+                saveToDocx(); // Simpan ke Word
                 clearFields();
-                showSuccessMessage("Costume added successfully");
+
+                // Kembalikan layout tombol ke kondisi semula
+                JPanel buttonPanel = (JPanel) addButton.getParent();
+                buttonPanel.removeAll();
+                addButton.setText("Add");
+                addButton.setBackground(LIGHT_BLUE);
+                buttonPanel.add(addButton);
+//                buttonPanel.add(saveButton);
+                buttonPanel.revalidate();
+                buttonPanel.repaint();
+
+                showSuccessMessage("Costume added successfully at " + waktuSekarang);
             } catch (Exception e) {
                 showErrorMessage("Failed to add costume: " + e.getMessage());
             }
         }
     }
 
-    // Method untuk mengedit kostum
     private void editCostume() {
         int selectedRow = costumeTable.getSelectedRow();
         if (selectedRow != -1 && validateInput()) {
             try {
-                tableModel.setValueAt(idField.getText(), selectedRow, 0);
+                // Dapatkan waktu saat ini
+                String waktuSekarang = LocalDateTime.now().format(WAKTU_FORMATTER);
+
+
+                tableModel.setValueAt(idField.getText(), selectedRow, 0); // ID dimulai dari indeks 1
                 tableModel.setValueAt(nameField.getText(), selectedRow, 1);
                 tableModel.setValueAt(categoryBox.getSelectedItem(), selectedRow, 2);
                 tableModel.setValueAt(themeBox.getSelectedItem(), selectedRow, 3);
                 tableModel.setValueAt(sizeField.getText(), selectedRow, 4);
                 tableModel.setValueAt(statusBox.getSelectedItem(), selectedRow, 5);
                 tableModel.setValueAt(imagePath.getText(), selectedRow, 6);
+                tableModel.setValueAt(waktuSekarang, selectedRow, 7); // Update waktu
 
+                saveToDocx(); // Simpan ke Word
                 clearFields();
-                showSuccessMessage("Costume updated successfully");
+
+                // Kembalikan layout tombol ke kondisi semula
+                JPanel buttonPanel = (JPanel) addButton.getParent();
+                buttonPanel.removeAll();
+                addButton.setText("Add");
+                addButton.setBackground(LIGHT_BLUE);
+                buttonPanel.add(addButton);
+//                buttonPanel.add(saveButton);
+                buttonPanel.revalidate();
+                buttonPanel.repaint();
+
+                showSuccessMessage("Costume updated successfully at " + waktuSekarang);
             } catch (Exception e) {
                 showErrorMessage("Failed to update costume: " + e.getMessage());
             }
@@ -607,7 +650,7 @@ public class CostumeInventorySystem extends JFrame {
         }
     }
 
-    // Method untuk menghapus kostum
+    // Modifikasi method deleteCostume()
     private void deleteCostume() {
         int selectedRow = costumeTable.getSelectedRow();
         if (selectedRow != -1) {
@@ -621,9 +664,24 @@ public class CostumeInventorySystem extends JFrame {
 
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
+                    // Dapatkan waktu saat ini
+                    String waktuSekarang = LocalDateTime.now().format(WAKTU_FORMATTER);
+
                     tableModel.removeRow(selectedRow);
+                    saveToDocx(); // Simpan ke Word
                     clearFields();
-                    showSuccessMessage("Costume deleted successfully");
+
+                    // Kembalikan layout tombol ke kondisi semula
+                    JPanel buttonPanel = (JPanel) addButton.getParent();
+                    buttonPanel.removeAll();
+                    addButton.setText("Add");
+                    addButton.setBackground(LIGHT_BLUE);
+                    buttonPanel.add(addButton);
+//                    buttonPanel.add(saveButton);
+                    buttonPanel.revalidate();
+                    buttonPanel.repaint();
+
+                    showSuccessMessage("Costume deleted successfully at " + waktuSekarang);
                 } catch (Exception e) {
                     showErrorMessage("Failed to delete costume: " + e.getMessage());
                 }
@@ -676,7 +734,8 @@ public class CostumeInventorySystem extends JFrame {
 
 
 
-    // Method untuk membersihkan fields
+
+    // Modifikasi method clearFields()
     private void clearFields() {
         idField.setText("");
         nameField.setText("");
@@ -686,7 +745,7 @@ public class CostumeInventorySystem extends JFrame {
         themeBox.setSelectedIndex(0);
         statusBox.setSelectedIndex(0);
         imageLabel.setIcon(null);
-        imageLabel.setText("No Image Selected");
+        imageLabel.setText("Tidak Ada Gambar");
 
         // Kembalikan tombol ke mode Add
         JPanel buttonPanel = (JPanel) addButton.getParent();
@@ -694,6 +753,7 @@ public class CostumeInventorySystem extends JFrame {
         addButton.setText("Add");
         addButton.setBackground(LIGHT_BLUE);
         buttonPanel.add(addButton);
+//        buttonPanel.add(saveButton);
         buttonPanel.revalidate();
         buttonPanel.repaint();
     }
